@@ -15,9 +15,9 @@ const sans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ouooops.com"),
+  metadataBase: new URL("https://ouoops.com"),
   title: "Ou Ooops | Unique Old Stuff",
-  description: "A lifetime collection of globes, maps, books, toys, art deco, and other unusual finds looking for one more good home.",
+  description: "A lifetime collection of unique old stuff, related finds, and computers looking for one more good home.",
   openGraph: {
     title: "Ou Ooops | Unique Old Stuff",
     description: "Old things, good stories, and one more home.",
