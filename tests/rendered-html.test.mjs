@@ -130,4 +130,5 @@ test("binds Cloudflare static assets for nested Studio routes", async () => {
   const wranglerConfig = JSON.parse(await readFile(new URL("../dist/server/wrangler.json", import.meta.url), "utf8"));
 
   assert.equal(wranglerConfig.assets?.binding, "ASSETS");
+  assert.equal(wranglerConfig.keep_vars, true);
 });
