@@ -52,7 +52,7 @@ const query = `*[
   (defined(primaryImage.asset) || defined(images[0].asset))
 ] | order(coalesce(sortOrder, 9999) asc, _createdAt desc) {
   _id, _createdAt, _updatedAt, "slug": slug.current,
-  title, description, details, category, price, priceLabel, status, featured,
+  title, description, details, "category": coalesce(categoryRef->name, category), price, priceLabel, status, featured,
   primaryImage { alt, asset->{ url } },
   additionalImages[] { alt, asset->{ url } },
   images[] { alt, asset->{ url } }

@@ -42,6 +42,16 @@ export default defineConfig({
                           .title("Existing Listings")
                           .defaultOrdering([{ field: "_updatedAt", direction: "desc" }]),
                       ),
+                    S.divider(),
+                    S.listItem()
+                      .id("manage-categories")
+                      .title("Manage Categories")
+                      .schemaType("listingCategory")
+                      .child(
+                        S.documentTypeList("listingCategory")
+                          .title("Categories")
+                          .defaultOrdering([{ field: "name", direction: "asc" }]),
+                      ),
                   ]),
               ),
           ]),

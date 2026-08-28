@@ -1,5 +1,4 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
-import { siteConfig } from "../../app/site-config";
 
 const photoDescription = defineField({
   name: "alt",
@@ -46,15 +45,29 @@ export const collectible = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: "category",
+      name: "categoryRef",
       title: "Category",
-      description: "Choose the closest match so visitors can filter the collection.",
+      description: "Choose an existing category. If it is not listed, choose Create new Category and enter the new name once.",
+      type: "reference",
+      to: [{ type: "listingCategory" }],
+      options: { disableNew: false },
+      validation: (rule) => rule.custom((category, context) => {
+        const hasSelectedCategory = Boolean(category?._ref);
+        const hasOlderCategory = typeof context.document?.category === "string" && context.document.category.trim().length > 0;
+
+        return hasSelectedCategory || hasOlderCategory || "Choose a category or create a new one.";
+      }),
+    }),
+    defineField({
+      name: "category",
+      title: "Current category (older listing)",
+      description: "This listing still uses its category from the older form. Choose a Category above if you want to change it.",
       type: "string",
-      options: {
-        list: siteConfig.categories.map((category) => ({ title: category, value: category })),
-        layout: "dropdown",
+      readOnly: true,
+      hidden: ({ document }) => {
+        const olderCategory = document?.category;
+        return Boolean(document?.categoryRef) || typeof olderCategory !== "string" || olderCategory.trim().length === 0;
       },
-      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "price",
@@ -165,15 +178,16 @@ export const collectible = defineType({
       status: "status",
       price: "price",
       priceLabel: "priceLabel",
-      category: "category",
+      categoryName: "categoryRef.name",
+      olderCategory: "category",
     },
-    prepare({ title, primaryMedia, legacyMedia, status, price, priceLabel, category }) {
+    prepare({ title, primaryMedia, legacyMedia, status, price, priceLabel, categoryName, olderCategory }) {
       const statusLabel = status === "sold" ? "Sold" : status === "on-hold" ? "On Hold" : "Available";
       const priceText = priceLabel || (typeof price === "number" ? `$${price.toLocaleString("en-US")}` : "Ask for price");
       return {
         title: title || "Untitled listing",
         media: primaryMedia || legacyMedia,
-        subtitle: [statusLabel, priceText, category].filter(Boolean).join(" · "),
+        subtitle: [statusLabel, priceText, categoryName || olderCategory].filter(Boolean).join(" · "),
       };
     },
   },

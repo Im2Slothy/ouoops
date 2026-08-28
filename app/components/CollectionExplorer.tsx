@@ -47,7 +47,12 @@ export function CollectionExplorer({ items }: { items: Collectible[] }) {
 
   const categories = useMemo(() => {
     const used = new Set(items.map((item) => item.category));
-    return ["All", ...siteConfig.categories.filter((category) => used.has(category))];
+    const familiar = new Set<string>(siteConfig.categories);
+    const familiarCategories = siteConfig.categories.filter((category) => used.has(category));
+    const newCategories = [...used]
+      .filter((category) => !familiar.has(category))
+      .sort((first, second) => first.localeCompare(second));
+    return ["All", ...familiarCategories, ...newCategories];
   }, [items]);
 
   const filteredItems = useMemo(() => {

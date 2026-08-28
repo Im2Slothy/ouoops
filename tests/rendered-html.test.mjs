@@ -51,7 +51,7 @@ test("server-renders published Sanity listings", async (context) => {
             _updatedAt: "2026-08-01T12:00:00Z",
             title: "Folded Road Map Set",
             description: "A listing saved with the original photo field.",
-            category: "Computers",
+            category: "Maps & Ephemera",
             price: 28,
             status: "on-hold",
             featured: false,
@@ -81,6 +81,7 @@ test("server-renders published Sanity listings", async (context) => {
   assert.match(html, /Browse the collection/);
   assert.match(html, /Brass Library Globe/);
   assert.match(html, /Folded Road Map Set/);
+  assert.match(html, /Maps &amp; Ephemera/);
   assert.match(html, /cdn\.sanity\.io\/images\/test-project/);
   assert.doesNotMatch(html, /Pair of Library Globes|images\.unsplash\.com/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
