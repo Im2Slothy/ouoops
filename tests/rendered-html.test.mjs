@@ -99,10 +99,21 @@ test("shows a neutral empty state instead of mock inventory", async () => {
   }
 });
 
-test("redirects /admin to the configured Sanity Studio", async () => {
+test("serves the embedded Sanity Studio at /admin", async () => {
+  const requestedAssets = [];
   const response = await render("/admin", {
-    SANITY_STUDIO_URL: "https://ouoops-admin.sanity.studio/",
+    ASSETS: {
+      fetch: async (request) => {
+        requestedAssets.push(new URL(request.url).pathname);
+        return new Response("OUOOPS Admin", {
+          status: 200,
+          headers: { "content-type": "text/html" },
+        });
+      },
+    },
   });
-  assert.equal(response.status, 302);
-  assert.equal(response.headers.get("location"), "https://ouoops-admin.sanity.studio/");
+
+  assert.equal(response.status, 200);
+  assert.equal(await response.text(), "OUOOPS Admin");
+  assert.deepEqual(requestedAssets, ["/admin/index.html"]);
 });

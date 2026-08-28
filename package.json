@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "vinext dev",
-    "build": "vinext build",
+    "build": "npm run build:studio && vinext build",
+    "build:studio": "npm --prefix studio ci --include=dev && npm --prefix studio run build:embedded",
     "start": "vinext start",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
     "lint": "eslint app tests --ignore-pattern .next --ignore-pattern .vinext --ignore-pattern .wrangler",

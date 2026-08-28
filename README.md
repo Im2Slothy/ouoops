@@ -7,8 +7,8 @@ A mobile-friendly catalog for a lifetime collection of unusual old things. Visit
 - The storefront is a React/Next App Router application built by vinext and served by the existing Cloudflare Worker.
 - `app/lib/collectibles.ts` makes a read-only, server-side GROQ request for published Sanity listings. It does not contain demo inventory and it does not use a write token.
 - `app/components/CollectionExplorer.tsx` keeps the existing search, category filters, cards, statuses, and photo modal.
-- `studio/` is a separate, client-friendly Sanity Studio deployed to Sanity's hosted Studio service.
-- `/admin` is handled by the Cloudflare Worker and redirects to the hosted Studio configured in `SANITY_STUDIO_URL`.
+- `studio/` is a separate, client-friendly Sanity Studio source package.
+- The production build places that Studio at `/admin` inside the existing Cloudflare deployment.
 - D1/Drizzle remains unused template scaffolding. Supabase is not used.
 
 ## Listing fields
@@ -33,7 +33,6 @@ For local development, copy `.env.example` to `.env.local`. Add the same values 
 SANITY_PROJECT_ID=your-project-id
 SANITY_DATASET=production
 SANITY_API_VERSION=2025-02-19
-SANITY_STUDIO_URL=https://your-studio-name.sanity.studio
 ```
 
 The dataset must allow public reads for this token-free storefront setup. Project IDs and dataset names are identifiers, not write credentials. Never add a Sanity write token to the public application.
@@ -43,10 +42,9 @@ Copy `studio/.env.example` to `studio/.env`:
 ```text
 SANITY_STUDIO_PROJECT_ID=your-project-id
 SANITY_STUDIO_DATASET=production
-SANITY_STUDIO_HOSTNAME=ouoops-admin
 ```
 
-`SANITY_STUDIO_HOSTNAME` is optional if the Studio already has a registered hostname.
+The checked-in Studio configuration uses the OUOOPS project as a safe fallback. Project IDs and dataset names are public identifiers, not credentials.
 
 ## Local development
 
@@ -71,12 +69,10 @@ The storefront opens at `http://localhost:3000`; Sanity normally opens at `http:
 
 ## First deployment and client handoff
 
-1. In `studio/`, run `npm run deploy` while signed in to the correct Sanity project.
-2. Copy the resulting `https://...sanity.studio` URL into the Cloudflare `SANITY_STUDIO_URL` environment variable and redeploy the storefront.
-3. Add the production Studio URL to the Sanity project's allowed CORS origins if the deploy command does not do so automatically. Allow credentials for the Studio origin.
-4. Invite the owner to the Sanity project with a role that can create, update, publish, and delete documents.
-5. Bookmark `https://ouoops.com/admin` for the owner. It opens **OUOOPS Admin → Listings → Add New Listing / Existing Listings**.
-6. Create and publish the first real listing. The storefront intentionally shows an empty-collection message until published Sanity content exists.
+1. Add `https://ouoops.com` to the Sanity project's allowed CORS origins with credentials enabled.
+2. Invite the owner to the Sanity project with a role that can create, update, publish, and delete documents.
+3. Bookmark `https://ouoops.com/admin` for the owner. It opens **OUOOPS Admin → Listings → Add New Listing / Existing Listings**.
+4. Sign in there with a Sanity project member account, create the first real listing, and press **Publish**. The storefront intentionally shows an empty-collection message until published Sanity content exists.
 
 The owner never needs the Cloudflare dashboard, GitHub, or source files for normal inventory work.
 
@@ -85,7 +81,6 @@ The owner never needs the Cloudflare dashboard, GitHub, or source files for norm
 ```bash
 npm run lint
 npm test
-cd studio && npm run build
 ```
 
-Cloudflare continues to use the repository's existing vinext/Vite Worker build. Keep `ouoops.com` attached to that deployment; the Studio remains separately hosted by Sanity.
+Cloudflare continues to use the repository's existing vinext/Vite Worker build. The root build command installs the Studio dependencies, builds it into the site's public assets, and then builds the storefront. Keep `ouoops.com` attached to that deployment.

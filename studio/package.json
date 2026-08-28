@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "sanity dev",
     "build": "sanity build",
+    "build:embedded": "sanity build ../public/admin -y",
     "deploy": "sanity deploy"
   },
   "dependencies": {

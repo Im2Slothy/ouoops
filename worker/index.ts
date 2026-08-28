@@ -8,7 +8,6 @@ interface Env {
   SANITY_PROJECT_ID?: string;
   SANITY_DATASET?: string;
   SANITY_API_VERSION?: string;
-  SANITY_STUDIO_URL?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -33,15 +32,14 @@ const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
-    if (url.pathname === "/admin" || url.pathname === "/admin/") {
-      const configuredUrl = env.SANITY_STUDIO_URL;
-      try {
-        const studioUrl = new URL(configuredUrl || "https://www.sanity.io/manage");
-        if (studioUrl.protocol === "https:") return Response.redirect(studioUrl, 302);
-      } catch {
-        // Fall through to the safe Sanity dashboard URL below.
+    if (url.pathname === "/admin" || url.pathname.startsWith("/admin/")) {
+      if (url.pathname !== "/admin" && url.pathname !== "/admin/") {
+        const assetResponse = await env.ASSETS.fetch(request);
+        if (assetResponse.status !== 404) return assetResponse;
       }
-      return Response.redirect("https://www.sanity.io/manage", 302);
+
+      const studioIndexUrl = new URL("/admin/index.html", request.url);
+      return env.ASSETS.fetch(new Request(studioIndexUrl, request));
     }
 
     if (url.pathname === "/_vinext/image") {

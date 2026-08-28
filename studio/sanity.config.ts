@@ -3,12 +3,13 @@ import { structureTool } from "sanity/structure";
 import { NewListingPane } from "./components/NewListingPane";
 import { schemaTypes } from "./schemaTypes";
 
-const projectId = process.env.SANITY_STUDIO_PROJECT_ID || "replacewithprojectid";
+const projectId = process.env.SANITY_STUDIO_PROJECT_ID || "g4sgm4tt";
 const dataset = process.env.SANITY_STUDIO_DATASET || "production";
 
 export default defineConfig({
   name: "ouoops-admin",
   title: "OUOOPS Admin",
+  basePath: "/admin",
   projectId,
   dataset,
   plugins: [
