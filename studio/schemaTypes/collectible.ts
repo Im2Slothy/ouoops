@@ -106,7 +106,10 @@ export const collectible = defineType({
       fields: [photoDescription],
       validation: (rule) => rule.custom((photo, context) => {
         const legacyImages = context.document?.images;
-        return photo?.asset || (Array.isArray(legacyImages) && legacyImages.length > 0) || "Add a main photo.";
+        const hasMainPhoto = Boolean(photo?.asset);
+        const hasLegacyPhoto = Array.isArray(legacyImages) && legacyImages.length > 0;
+
+        return hasMainPhoto || hasLegacyPhoto || "Add a main photo.";
       }),
     }),
     defineField({
