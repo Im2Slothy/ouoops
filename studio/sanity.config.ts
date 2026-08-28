@@ -9,7 +9,6 @@ const dataset = process.env.SANITY_STUDIO_DATASET || "production";
 export default defineConfig({
   name: "ouoops-admin",
   title: "OUOOPS Admin",
-  basePath: "/admin",
   projectId,
   dataset,
   plugins: [
