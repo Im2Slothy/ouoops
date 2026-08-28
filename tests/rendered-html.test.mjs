@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 async function loadWorker() {
@@ -116,4 +117,11 @@ test("serves the embedded Sanity Studio at /admin", async () => {
   assert.equal(response.status, 200);
   assert.equal(await response.text(), "OUOOPS Admin");
   assert.deepEqual(requestedAssets, ["/admin/index.html"]);
+});
+
+test("builds Sanity Studio assets under the /admin path", async () => {
+  const studioHtml = await readFile(new URL("../dist/client/admin/index.html", import.meta.url), "utf8");
+
+  assert.match(studioHtml, /<script src="\/admin\/static\/[^"]+" type="module"><\/script>/);
+  assert.doesNotMatch(studioHtml, /<script src="\/static\/[^"]+" type="module"><\/script>/);
 });
