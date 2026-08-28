@@ -29,6 +29,14 @@ type SanityEnvironment = {
   SANITY_API_VERSION?: string;
 };
 
+// Public, read-only production defaults. Environment variables still override
+// these values for previews or a future Sanity project migration.
+const defaultSanityEnvironment: Required<SanityEnvironment> = {
+  SANITY_PROJECT_ID: "g4sgm4tt",
+  SANITY_DATASET: "production",
+  SANITY_API_VERSION: "2025-02-19",
+};
+
 async function getSanityEnvironment(): Promise<SanityEnvironment> {
   try {
     const { env } = await import("cloudflare:workers");
@@ -102,10 +110,9 @@ function normalizeCollectible(item: SanityCollectible): Collectible | null {
 
 export async function getCollectibles(): Promise<Collectible[]> {
   const runtimeEnv = await getSanityEnvironment();
-  const projectId = runtimeEnv.SANITY_PROJECT_ID || process.env.SANITY_PROJECT_ID;
-  const dataset = runtimeEnv.SANITY_DATASET || process.env.SANITY_DATASET || "production";
-  const apiVersion = runtimeEnv.SANITY_API_VERSION || process.env.SANITY_API_VERSION || "2025-02-19";
-  if (!projectId) return [];
+  const projectId = runtimeEnv.SANITY_PROJECT_ID || process.env.SANITY_PROJECT_ID || defaultSanityEnvironment.SANITY_PROJECT_ID;
+  const dataset = runtimeEnv.SANITY_DATASET || process.env.SANITY_DATASET || defaultSanityEnvironment.SANITY_DATASET;
+  const apiVersion = runtimeEnv.SANITY_API_VERSION || process.env.SANITY_API_VERSION || defaultSanityEnvironment.SANITY_API_VERSION;
 
   if (!/^[a-z0-9-]+$/.test(projectId) || !/^[a-zA-Z0-9_-]+$/.test(dataset) || !/^\d{4}-\d{2}-\d{2}$/.test(apiVersion)) {
     console.error("Sanity configuration is invalid; no listings were loaded.");

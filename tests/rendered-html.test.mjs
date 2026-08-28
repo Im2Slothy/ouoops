@@ -88,7 +88,13 @@ test("server-renders published Sanity listings", async (context) => {
 
 test("shows a neutral empty state instead of mock inventory", async () => {
   const previousProjectId = process.env.SANITY_PROJECT_ID;
-  delete process.env.SANITY_PROJECT_ID;
+  const originalFetch = globalThis.fetch;
+  process.env.SANITY_PROJECT_ID = "test-empty";
+  globalThis.fetch = async (input, init) => {
+    const url = input instanceof Request ? input.url : String(input);
+    if (url.startsWith("https://test-empty.api.sanity.io/")) return Response.json({ result: [] });
+    return originalFetch(input, init);
+  };
   try {
     const response = await render();
     assert.equal(response.status, 200);
@@ -96,7 +102,9 @@ test("shows a neutral empty state instead of mock inventory", async () => {
     assert.match(html, /New old treasures are coming soon/);
     assert.doesNotMatch(html, /Pair of Library Globes|images\.unsplash\.com/);
   } finally {
+    globalThis.fetch = originalFetch;
     if (previousProjectId !== undefined) process.env.SANITY_PROJECT_ID = previousProjectId;
+    else delete process.env.SANITY_PROJECT_ID;
   }
 });
 
