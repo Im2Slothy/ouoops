@@ -54,7 +54,7 @@ export function CollectionExplorer({ items }: { items: Collectible[] }) {
     const search = query.trim().toLowerCase();
     return items.filter((item) => {
       const categoryMatch = activeCategory === "All" || item.category === activeCategory;
-      const searchMatch = !search || `${item.title} ${item.description} ${item.category}`.toLowerCase().includes(search);
+      const searchMatch = !search || `${item.title} ${item.description} ${item.details || ""} ${item.category}`.toLowerCase().includes(search);
       return categoryMatch && searchMatch;
     });
   }, [activeCategory, items, query]);
@@ -106,8 +106,10 @@ export function CollectionExplorer({ items }: { items: Collectible[] }) {
         </div>
       ) : (
         <div className="empty-state">
-          <h3>No old treasures matched that search.</h3>
-          <button type="button" onClick={() => { setQuery(""); setActiveCategory("All"); }}>Show everything</button>
+          <h3>{items.length ? "No old treasures matched that search." : "New old treasures are coming soon."}</h3>
+          {items.length > 0 && (
+            <button type="button" onClick={() => { setQuery(""); setActiveCategory("All"); }}>Show everything</button>
+          )}
         </div>
       )}
 
@@ -138,7 +140,10 @@ export function CollectionExplorer({ items }: { items: Collectible[] }) {
               <p className="item-category">{selected.category}</p>
               <h2 id="modal-title">{selected.title}</h2>
               <strong className="modal-price">{priceFor(selected)}</strong>
-              <p id="modal-description">{selected.description}</p>
+              <p id="modal-description">
+                {selected.description}
+                {selected.details && <><br /><br />{selected.details}</>}
+              </p>
               <a className="button" href={`mailto:${siteConfig.contact.email}?subject=${encodeURIComponent(`Ou Ooops: ${selected.title}`)}`}>I’m interested</a>
               <a className="modal-phone" href={`tel:${siteConfig.contact.phoneHref}`}>or call {siteConfig.contact.phoneDisplay}</a>
             </div>

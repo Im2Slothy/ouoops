@@ -5,6 +5,10 @@ import handler from "vinext/server/app-router-entry";
 interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
+  SANITY_PROJECT_ID?: string;
+  SANITY_DATASET?: string;
+  SANITY_API_VERSION?: string;
+  SANITY_STUDIO_URL?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -28,6 +32,17 @@ interface ExecutionContext {
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+
+    if (url.pathname === "/admin" || url.pathname === "/admin/") {
+      const configuredUrl = env.SANITY_STUDIO_URL;
+      try {
+        const studioUrl = new URL(configuredUrl || "https://www.sanity.io/manage");
+        if (studioUrl.protocol === "https:") return Response.redirect(studioUrl, 302);
+      } catch {
+        // Fall through to the safe Sanity dashboard URL below.
+      }
+      return Response.redirect("https://www.sanity.io/manage", 302);
+    }
 
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];

@@ -8,7 +8,7 @@
     "deploy": "sanity deploy"
   },
   "dependencies": {
-    "@sanity/vision": "6.9.2",
+    "@sanity/ui": "3.5.4",
     "sanity": "6.9.2",
     "styled-components": "6.5.2"
   },

@@ -1,63 +1,130 @@
 import type { Collectible } from "../types";
 
-const sampleItems: Collectible[] = [
-  {
-    id: "sample-globes", title: "Pair of Library Globes",
-    description: "A handsome pair of vintage tabletop globes with warm patina and clear map details.",
-    category: "Globes", price: 85, status: "available", featured: true,
-    images: [{ url: "https://images.unsplash.com/photo-1771797628619-926785541b8d?auto=format&fit=crop&w=1400&q=85", alt: "Three antique globes on a wooden table" }],
-  },
-  {
-    id: "sample-books", title: "Old Illustrated Books",
-    description: "A small group of well-loved illustrated volumes with decorative cloth covers.",
-    category: "Books", price: 42, status: "available", featured: true,
-    images: [{ url: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1400&q=85", alt: "Shelves filled with old books" }],
-  },
-  {
-    id: "sample-camera", title: "Mid-Century Camera",
-    description: "A display-worthy vintage camera with its original leather case and plenty of character.",
-    category: "Art Deco", price: 65, status: "on-hold", featured: true,
-    images: [{ url: "https://images.unsplash.com/photo-1452780212940-6f5c0d14d848?auto=format&fit=crop&w=1400&q=85", alt: "A vintage camera on a wooden surface" }],
-  },
-  {
-    id: "sample-buttons", title: "Political Button Group",
-    description: "An assorted group of campaign and cause buttons collected over several decades.",
-    category: "Buttons", price: 38, status: "available", featured: false,
-    images: [{ url: "https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?auto=format&fit=crop&w=1400&q=85", alt: "A collection of vintage printed objects" }],
-  },
-  {
-    id: "sample-toy", title: "Tin Wind-Up Toy",
-    description: "Colorful little mechanical toy with honest wear from years of play and display.",
-    category: "Games and Toys", price: 55, status: "sold", featured: false,
-    images: [{ url: "https://images.unsplash.com/photo-1599443015574-be5fe8a05783?auto=format&fit=crop&w=1400&q=85", alt: "A colorful vintage toy" }],
-  },
-  {
-    id: "sample-map", title: "Folded Road Map Set",
-    description: "A nostalgic collection of regional road maps with bold mid-century cover graphics.",
-    category: "Maps", price: 28, status: "available", featured: false,
-    images: [{ url: "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&w=1400&q=85", alt: "A colorful folded map" }],
-  },
-];
+type SanityImage = {
+  alt?: string;
+  asset?: { url?: string };
+};
 
-const query = `*[_type == "collectible" && coalesce(isVisible, true)] | order(coalesce(sortOrder, 9999) asc, _createdAt desc) {
-  "id": _id, title, description, category, price, priceLabel,
-  "status": coalesce(status, "available"), "featured": coalesce(featured, false),
-  "images": images[]{"url": asset->url, "alt": coalesce(alt, ^.title)}
+type SanityCollectible = {
+  _id: string;
+  _createdAt: string;
+  _updatedAt: string;
+  slug?: string;
+  title?: string;
+  description?: string;
+  details?: string;
+  category?: string;
+  price?: number;
+  priceLabel?: string;
+  status?: string;
+  featured?: boolean;
+  primaryImage?: SanityImage;
+  additionalImages?: SanityImage[];
+  images?: SanityImage[];
+};
+
+type SanityEnvironment = {
+  SANITY_PROJECT_ID?: string;
+  SANITY_DATASET?: string;
+  SANITY_API_VERSION?: string;
+};
+
+async function getSanityEnvironment(): Promise<SanityEnvironment> {
+  try {
+    const { env } = await import("cloudflare:workers");
+    return env as SanityEnvironment;
+  } catch {
+    return process.env;
+  }
+}
+
+const query = `*[
+  _type == "collectible" &&
+  coalesce(isVisible, true) &&
+  (defined(primaryImage.asset) || defined(images[0].asset))
+] | order(coalesce(sortOrder, 9999) asc, _createdAt desc) {
+  _id, _createdAt, _updatedAt, "slug": slug.current,
+  title, description, details, category, price, priceLabel, status, featured,
+  primaryImage { alt, asset->{ url } },
+  additionalImages[] { alt, asset->{ url } },
+  images[] { alt, asset->{ url } }
 }`;
 
+const statuses = new Set<Collectible["status"]>(["available", "on-hold", "sold"]);
+
+function imageFor(image: SanityImage | undefined, title: string) {
+  const url = image?.asset?.url;
+  return url ? { url, alt: image.alt?.trim() || title } : null;
+}
+
+function normalizeCollectible(item: SanityCollectible): Collectible | null {
+  const title = item.title?.trim();
+  const description = item.description?.trim();
+  const category = item.category?.trim();
+  if (!title || !description || !category) return null;
+
+  const legacyImages = (item.images || [])
+    .map((image) => imageFor(image, title))
+    .filter((image): image is NonNullable<typeof image> => image !== null);
+  const newPrimaryImage = imageFor(item.primaryImage, title);
+  const primaryImage = newPrimaryImage || legacyImages[0];
+  if (!primaryImage) return null;
+
+  const additionalImages = (item.additionalImages || [])
+    .map((image) => imageFor(image, title))
+    .filter((image): image is NonNullable<typeof image> => image !== null);
+  const candidateImages = newPrimaryImage
+    ? [primaryImage, ...additionalImages]
+    : [primaryImage, ...legacyImages.slice(1), ...additionalImages];
+  const images = candidateImages.filter(
+    (image, index) => candidateImages.findIndex((candidate) => candidate.url === image.url) === index,
+  );
+  const status = statuses.has(item.status as Collectible["status"])
+    ? (item.status as Collectible["status"])
+    : "available";
+
+  return {
+    id: item.slug || item._id,
+    slug: item.slug || item._id,
+    title,
+    description,
+    details: item.details?.trim() || undefined,
+    category,
+    price: typeof item.price === "number" && Number.isFinite(item.price) ? item.price : null,
+    priceLabel: item.priceLabel?.trim() || undefined,
+    status,
+    featured: item.featured === true,
+    images,
+    createdAt: item._createdAt,
+    updatedAt: item._updatedAt,
+  };
+}
+
 export async function getCollectibles(): Promise<Collectible[]> {
-  const projectId = process.env.SANITY_PROJECT_ID || process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-  const dataset = process.env.SANITY_DATASET || "production";
-  if (!projectId) return sampleItems;
+  const runtimeEnv = await getSanityEnvironment();
+  const projectId = runtimeEnv.SANITY_PROJECT_ID || process.env.SANITY_PROJECT_ID;
+  const dataset = runtimeEnv.SANITY_DATASET || process.env.SANITY_DATASET || "production";
+  const apiVersion = runtimeEnv.SANITY_API_VERSION || process.env.SANITY_API_VERSION || "2025-02-19";
+  if (!projectId) return [];
+
+  if (!/^[a-z0-9-]+$/.test(projectId) || !/^[a-zA-Z0-9_-]+$/.test(dataset) || !/^\d{4}-\d{2}-\d{2}$/.test(apiVersion)) {
+    console.error("Sanity configuration is invalid; no listings were loaded.");
+    return [];
+  }
 
   try {
-    const endpoint = `https://${projectId}.apicdn.sanity.io/v2025-02-19/data/query/${dataset}?query=${encodeURIComponent(query)}`;
-    const response = await fetch(endpoint, { cache: "no-store" });
+    const endpoint = `https://${projectId}.api.sanity.io/v${apiVersion}/data/query/${dataset}?query=${encodeURIComponent(query)}&perspective=published`;
+    const response = await fetch(endpoint, {
+      cache: "no-store",
+      headers: { Accept: "application/json" },
+    });
     if (!response.ok) throw new Error(`Sanity returned ${response.status}`);
-    const payload = (await response.json()) as { result?: Collectible[] };
-    return payload.result?.length ? payload.result : sampleItems;
+    const payload = (await response.json()) as { result?: SanityCollectible[] };
+    return (payload.result || [])
+      .map(normalizeCollectible)
+      .filter((item): item is Collectible => item !== null);
   } catch (error) {
-    console.error("Unable to load Sanity listings; showing sample items.", error);
-    return sampleItems;
+    console.error("Unable to load published Sanity listings.", error);
+    return [];
   }
 }

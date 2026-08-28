@@ -9,7 +9,7 @@ export const siteConfig = {
     phoneDisplay: "312.217.7150",
     phoneHref: "+13122177150",
   },
-  ownerPortalUrl: "https://www.sanity.io/manage",
+  ownerPortalUrl: "/admin",
   categories: [
     "Globes", "Maps", "Alice in Wonderland", "Political", "Buttons",
     "Games and Toys", "Books", "Hear Speak See No Evil",

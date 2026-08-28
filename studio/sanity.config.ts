@@ -1,29 +1,51 @@
 import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
-import { visionTool } from "@sanity/vision";
+import { NewListingPane } from "./components/NewListingPane";
 import { schemaTypes } from "./schemaTypes";
 
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID || "replacewithprojectid";
 const dataset = process.env.SANITY_STUDIO_DATASET || "production";
 
 export default defineConfig({
-  name: "ou-ooops",
-  title: "Ou Ooops — Manage Collectibles",
+  name: "ouoops-admin",
+  title: "OUOOPS Admin",
   projectId,
   dataset,
   plugins: [
     structureTool({
       structure: (S) =>
         S.list()
-          .title("Ou Ooops")
+          .title("OUOOPS Admin")
           .items([
             S.listItem()
-              .title("Collectibles")
+              .title("Listings")
               .schemaType("collectible")
-              .child(S.documentTypeList("collectible").title("Collectibles")),
+              .child(
+                S.list()
+                  .title("Listings")
+                  .items([
+                    S.listItem()
+                      .id("add-new-listing")
+                      .title("Add New Listing")
+                      .child(
+                        S.component(NewListingPane)
+                          .id("add-new-listing-pane")
+                          .title("Add New Listing"),
+                      ),
+                    S.divider(),
+                    S.listItem()
+                      .id("existing-listings")
+                      .title("Existing Listings")
+                      .schemaType("collectible")
+                      .child(
+                        S.documentTypeList("collectible")
+                          .title("Existing Listings")
+                          .defaultOrdering([{ field: "_updatedAt", direction: "desc" }]),
+                      ),
+                  ]),
+              ),
           ]),
     }),
-    visionTool(),
   ],
   schema: { types: schemaTypes },
 });
