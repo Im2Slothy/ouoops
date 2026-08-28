@@ -125,3 +125,9 @@ test("builds Sanity Studio assets under the /admin path", async () => {
   assert.match(studioHtml, /<script src="\/admin\/static\/[^"]+" type="module"><\/script>/);
   assert.doesNotMatch(studioHtml, /<script src="\/static\/[^"]+" type="module"><\/script>/);
 });
+
+test("binds Cloudflare static assets for nested Studio routes", async () => {
+  const wranglerConfig = JSON.parse(await readFile(new URL("../dist/server/wrangler.json", import.meta.url), "utf8"));
+
+  assert.equal(wranglerConfig.assets?.binding, "ASSETS");
+});
