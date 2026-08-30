@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element -- Listing photos come from the owner's Sanity library. */
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { siteConfig } from "../site-config";
 import type { Collectible } from "../types";
 
@@ -15,8 +15,6 @@ function priceFor(item: Collectible) {
 }
 
 export function CollectionExplorer({ items }: { items: Collectible[] }) {
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Collectible | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -45,25 +43,6 @@ export function CollectionExplorer({ items }: { items: Collectible[] }) {
     };
   }, [selected]);
 
-  const categories = useMemo(() => {
-    const used = new Set(items.map((item) => item.category));
-    const familiar = new Set<string>(siteConfig.categories);
-    const familiarCategories = siteConfig.categories.filter((category) => used.has(category));
-    const newCategories = [...used]
-      .filter((category) => !familiar.has(category))
-      .sort((first, second) => first.localeCompare(second));
-    return ["All", ...familiarCategories, ...newCategories];
-  }, [items]);
-
-  const filteredItems = useMemo(() => {
-    const search = query.trim().toLowerCase();
-    return items.filter((item) => {
-      const categoryMatch = activeCategory === "All" || item.category === activeCategory;
-      const searchMatch = !search || `${item.title} ${item.description} ${item.details || ""} ${item.category}`.toLowerCase().includes(search);
-      return categoryMatch && searchMatch;
-    });
-  }, [activeCategory, items, query]);
-
   return (
     <section className="collection-section" id="collection">
       <div className="section-heading">
@@ -71,26 +50,9 @@ export function CollectionExplorer({ items }: { items: Collectible[] }) {
         <p>{items.length} curious {items.length === 1 ? "find" : "finds"}, each with a story.</p>
       </div>
 
-      <div className="catalog-tools">
-        <label className="search-field">
-          <span className="sr-only">Search the collection</span><span aria-hidden="true">⌕</span>
-          <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search old stuff…" />
-        </label>
-        <div className="category-scroller" aria-label="Filter by category">
-          {categories.map((category) => (
-            <button
-              className={category === activeCategory ? "category-pill active" : "category-pill"}
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              type="button"
-            >{category}</button>
-          ))}
-        </div>
-      </div>
-
-      {filteredItems.length ? (
+      {items.length ? (
         <div className="item-grid">
-          {filteredItems.map((item) => (
+          {items.map((item) => (
             <article className={`item-card ${item.status === "sold" ? "item-sold" : ""}`} key={item.id}>
               <button className="item-image-button" type="button" onClick={() => openItem(item)} aria-label={`View ${item.title}`}>
                 <img src={item.images[0]?.url} alt={item.images[0]?.alt || item.title} loading="lazy" />
@@ -111,10 +73,7 @@ export function CollectionExplorer({ items }: { items: Collectible[] }) {
         </div>
       ) : (
         <div className="empty-state">
-          <h3>{items.length ? "No old treasures matched that search." : "New old treasures are coming soon."}</h3>
-          {items.length > 0 && (
-            <button type="button" onClick={() => { setQuery(""); setActiveCategory("All"); }}>Show everything</button>
-          )}
+          <h3>New old treasures are coming soon.</h3>
         </div>
       )}
 
@@ -149,7 +108,7 @@ export function CollectionExplorer({ items }: { items: Collectible[] }) {
                 {selected.description}
                 {selected.details && <><br /><br />{selected.details}</>}
               </p>
-              <a className="button" href={`mailto:${siteConfig.contact.email}?subject=${encodeURIComponent(`Ou Ooops: ${selected.title}`)}`}>I’m interested</a>
+              <a className="button" href={`mailto:${siteConfig.contact.email}?subject=${encodeURIComponent(`OUOOPS: ${selected.title}`)}`}>I’m interested</a>
               <a className="modal-phone" href={`tel:${siteConfig.contact.phoneHref}`}>or call {siteConfig.contact.phoneDisplay}</a>
             </div>
           </section>

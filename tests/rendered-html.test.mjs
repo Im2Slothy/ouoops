@@ -76,10 +76,15 @@ test("server-renders published Sanity listings", async (context) => {
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
-  assert.match(html, /<title>Ou Ooops \| Unique Old Stuff<\/title>/i);
+  assert.match(html, /<title>OUOOPS \| Unique Old Stuff<\/title>/);
   assert.match(html, /Old things/);
   assert.match(html, /Only Unique Old Odd Perfectly Strange/);
   assert.match(html, /Browse the collection/);
+  assert.doesNotMatch(html, /href="#collection">Browse<\/a>/);
+  assert.doesNotMatch(html, /Search old stuff|Search the collection|Filter by category/);
+  assert.match(html, /312-217-7105/);
+  assert.match(html, /tel:\+13122177105/);
+  assert.match(html, /luke@ouoops\.com/);
   assert.match(html, /Brass Library Globe/);
   assert.match(html, /Folded Road Map Set/);
   assert.match(html, /Maps &amp; Ephemera/);

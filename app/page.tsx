@@ -20,7 +20,6 @@ export default async function Home() {
           <span>{siteConfig.name}</span>
         </a>
         <nav className="header-actions" aria-label="Primary navigation">
-          <a className="text-link" href="#collection">Browse</a>
           <a className="button button-small" href={`tel:${siteConfig.contact.phoneHref}`}>Call us</a>
         </nav>
       </header>
@@ -54,7 +53,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="story-strip" aria-label="About Ou Ooops">
+      <section className="story-strip" aria-label="About OUOOPS">
         <p>Our children don’t want this stuff, so the price is right to share with old friends and new folks.</p>
       </section>
 

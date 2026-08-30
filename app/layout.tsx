@@ -16,17 +16,17 @@ const sans = DM_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://ouoops.com"),
-  title: "Ou Ooops | Unique Old Stuff",
+  title: "OUOOPS | Unique Old Stuff",
   description: "A lifetime collection of unique old stuff, related finds, and computers looking for one more good home.",
   openGraph: {
-    title: "Ou Ooops | Unique Old Stuff",
+    title: "OUOOPS | Unique Old Stuff",
     description: "Old things, good stories, and one more home.",
     type: "website",
-    images: [{ url: "/og.png", width: 1748, height: 909, alt: "Ou Ooops — Old things. Good stories. One more home." }],
+    images: [{ url: "/og.png", width: 1748, height: 909, alt: "OUOOPS — Old things. Good stories. One more home." }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ou Ooops | Unique Old Stuff",
+    title: "OUOOPS | Unique Old Stuff",
     description: "Old things, good stories, and one more home.",
     images: ["/og.png"],
   },

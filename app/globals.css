@@ -71,15 +71,6 @@ img { display: block; max-width: 100%; }
 .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 40px; margin-bottom: 44px; }
 .section-heading h2, .contact-section h2 { margin: 0; font-size: clamp(54px, 6vw, 82px); }
 .section-heading > p { max-width: 300px; margin: 0 0 8px; font-size: 16px; }
-.catalog-tools { margin-bottom: 36px; }
-.search-field { display: flex; align-items: center; gap: 12px; max-width: 520px; min-height: 58px; margin-bottom: 20px; padding: 0 20px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); }
-.search-field > span:not(.sr-only) { font-size: 28px; line-height: 1; transform: rotate(-15deg); }
-.search-field input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 17px; }
-.search-field:focus-within { box-shadow: 0 0 0 3px var(--gold); }
-.category-scroller { display: flex; gap: 9px; overflow-x: auto; padding: 4px 4px 10px; scrollbar-width: thin; }
-.category-pill { flex: 0 0 auto; min-height: 44px; padding: 8px 18px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); background: transparent; cursor: pointer; font-size: 15px; font-weight: 700; }
-.category-pill:hover, .category-pill.active { color: white; background: var(--ink); border-color: var(--ink); }
-
 .item-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; }
 .item-card { overflow: hidden; background: var(--paper); border-radius: 16px; box-shadow: 0 1px 0 var(--line); transition: transform 180ms ease, box-shadow 180ms ease; }
 .item-card:hover { transform: translateY(-5px); box-shadow: 0 18px 45px rgba(23, 51, 44, .12); }
@@ -161,7 +152,6 @@ footer p { margin: 14px 0 0; color: #c9d0cb; font-size: 14px; }
   .section-heading { display: block; margin-bottom: 30px; }
   .section-heading h2, .contact-section h2 { font-size: 54px; }
   .section-heading > p { margin-top: 16px; }
-  .search-field { max-width: none; }
   .item-grid { grid-template-columns: 1fr; gap: 20px; }
   .item-image-button { height: 320px; }
   .view-cue { opacity: 1; transform: none; }
