@@ -78,6 +78,7 @@ test("server-renders published Sanity listings", async (context) => {
   const html = await response.text();
   assert.match(html, /<title>Ou Ooops \| Unique Old Stuff<\/title>/i);
   assert.match(html, /Old things/);
+  assert.match(html, /Only Unique Old Odd Perfectly Strange/);
   assert.match(html, /Browse the collection/);
   assert.match(html, /Brass Library Globe/);
   assert.match(html, /Folded Road Map Set/);

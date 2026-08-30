@@ -3,6 +3,7 @@ export const siteConfig = {
   name: "Ou Ooops",
   domain: "ouoops.com",
   intro: "A lifetime of curious, useful, beautiful, and sometimes wonderfully odd finds. Every piece has been kept for a reason—and now it may be ready for you.",
+  nameMeaning: "Only Unique Old Odd Perfectly Strange",
   footerNote: "Unique old stuff, collected with care in Chicago.",
   contact: {
     email: "luke@ouoops.com",

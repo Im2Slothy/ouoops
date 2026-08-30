@@ -30,6 +30,9 @@ export default async function Home() {
           <p className="eyebrow">Collected over 50+ years</p>
           <h1>Old things.<br />Good stories.<br /><em>One more home.</em></h1>
           <p className="hero-intro">{siteConfig.intro}</p>
+          <p className="name-meaning">
+            <strong>OUOOPS</strong> stands for {siteConfig.nameMeaning}.
+          </p>
           <div className="hero-actions">
             <a className="button" href="#collection">See what we found</a>
             <a className="button button-ghost" href={`mailto:${siteConfig.contact.email}`}>Ask a question</a>
