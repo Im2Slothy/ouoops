@@ -18,6 +18,10 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://ouoops.com"),
   title: "OUOOPS | Unique Old Stuff",
   description: "A lifetime collection of unique old stuff, related finds, and computers looking for one more good home.",
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    shortcut: "/favicon.svg",
+  },
   openGraph: {
     title: "OUOOPS | Unique Old Stuff",
     description: "Old things, good stories, and one more home.",
